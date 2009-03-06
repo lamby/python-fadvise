@@ -114,7 +114,9 @@ def random(fnames, offset=0, len=0):
 @advice(POSIX_FADV_NOREUSE)
 def noreuse(fnames, offset=0, len=0):
     """
-    The specified files will be accessed only once.
+    The specified files will be accessed only once. Under Linux, this operation
+    is a no-op; see contrib/copyfileobj-fadvise.py for an example on how to
+    achieve approximately the same effect.
     """
 
 @advice(POSIX_FADV_WILLNEED)
