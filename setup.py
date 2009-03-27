@@ -32,11 +32,13 @@
 from distutils.core import setup, Extension
 
 setup(
-    name = 'fadvise',
-    version = '1',
-    author = 'Chris Lamb',
-    author_email = 'chris@chris-lamb.co.uk',
-    packages = ['fadvise'],
-    scripts = ['pyadvise'],
-    ext_modules = [Extension('_fadvise', sources=['_fadvise.c'])]
+    name='fadvise',
+    version='1',
+    author='Chris Lamb',
+    author_email='chris@chris-lamb.co.uk',
+    packages=['fadvise'],
+    scripts=['pyadvise'],
+    ext_modules=[
+        Extension('_fadvise', sources=['_fadvise.c'])
+    ],
 )
