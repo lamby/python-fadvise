@@ -29,7 +29,7 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 
-from distutils.core import setup
+from distutils.core import setup, Extension
 
 setup(
     name = 'fadvise',
@@ -38,4 +38,5 @@ setup(
     author_email = 'chris@chris-lamb.co.uk',
     packages = ['fadvise'],
     scripts = ['pyadvise'],
+    ext_modules = [Extension('_fadvise', sources=['_fadvise.c'])]
 )

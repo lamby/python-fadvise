@@ -43,25 +43,9 @@ merely constitutes an expectation on behalf of the application.
 
 import os
 
-from ctypes import cdll
-
-POSIX_FADV_NORMAL       = 0 # No further special treatment.
-POSIX_FADV_RANDOM       = 1 # Expect random page references.
-POSIX_FADV_SEQUENTIAL   = 2 # Expect sequential page references.
-POSIX_FADV_WILLNEED     = 3 # Will need these pages in the near future>
-POSIX_FADV_DONTNEED     = 4 # Don't need these pages
-POSIX_FADV_NOREUSE      = 5 # Data will be accessed once
-
-libc = None
-
-def posix_fadvise(fd, offset, len, advice):
-    global libc
-    if libc is None:
-        libc = cdll.LoadLibrary('libc.so.6')
-
-    ret = libc.posix_fadvise(fd, offset, len, advice) == 0
-    if ret != 0:
-        assert 'posix_fadvise() failed: %s' % os.strerror(ret)
+from _fadvise import posix_fadvise, POSIX_FADV_NORMAL, POSIX_FADV_RANDOM, \
+ POSIX_FADV_SEQUENTIAL, POSIX_FADV_WILLNEED, POSIX_FADV_DONTNEED, \
+ POSIX_FADV_NOREUSE
 
 class advice(object):
     def __init__(self, advice):
