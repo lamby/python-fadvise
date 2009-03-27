@@ -1,8 +1,13 @@
-"""
-This fragment was kindly contributed by Matt Goodall <matt.goodall@gmail.com>.
 
-  -- Chris Lamb <lamby@debian.org>  Fri, 06 Mar 2009 11:04:58 +0000
 """
+The following code fragment was kindly contributed by Matt
+Goodall <matt.goodall@gmail.com>.
+
+I believe it needs to try-except over the read() call and
+special-case EAGAIN.
+"""
+
+import shutil
 
 from fadvise import posix_fadvise, POSIX_FADV_SEQUENTIAL, POSIX_FADV_DONTNEED
 
@@ -17,23 +22,27 @@ def copyfileobj(fsrc, fdst, length=16*1024, advise_after=1024*1024):
         * You know you don't need to access the source file once copied.
         * You're quite likely to access the destination file soon after.
     """
+
     # If we can't access the the fileno then fallback to using shutil.
     if not hasattr(fsrc, 'fileno'):
         return shutil.copyfileobj(fsrc, fdst, length)
+
     # Calculate the appoximate number of blocks to copy before advising the
     # OS to drop pages from the cache.
-    advise_after_blocks = int(advise_after/length)
+    advise_after_blocks = int(advise_after / length)
+
     # Off we go ...
     blocks_read = 0
-    while True:
+    while 1:
         data = fsrc.read(length)
         if not data:
             break
         fdst.write(data)
         blocks_read += 1
+
         if not blocks_read % advise_after_blocks:
             posix_fadvise(fsrc.fileno(), 0, length*blocks_read,
-                          POSIX_FADV_DONTNEED)
+                POSIX_FADV_DONTNEED)
+
     # One final advise to flush the remaining blocks.
     posix_fadvise(fsrc.fileno(), 0, 0, POSIX_FADV_DONTNEED)
-
