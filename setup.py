@@ -29,16 +29,21 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 
-from distutils.core import setup, Extension
+from setuptools import setup, find_packages, Extension
 
 setup(
     name='fadvise',
     version='1',
-    author='Chris Lamb',
-    author_email='chris@chris-lamb.co.uk',
-    packages=['fadvise'],
-    scripts=['pyadvise'],
-    ext_modules=[
+    description="Python interface to posix_fadvise(2)",
+
+    url="https://chris-lamb.co.uk/projects/python-fadvise",
+    author="Chris Lamb",
+    author_email="chris@chris-lamb.co.uk",
+    license="BSD",
+
+    scripts=('pyadvise',),
+    packages=find_packages(),
+    ext_modules=(
         Extension('_fadvise', sources=['_fadvise.c'])
-    ],
+    ),
 )
