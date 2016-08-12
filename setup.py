@@ -41,7 +41,6 @@ setup(
     author_email="chris@chris-lamb.co.uk",
     license="BSD",
 
-    scripts=('pyadvise',),
     packages=find_packages(),
     ext_modules=[
         Extension('_fadvise', sources=['_fadvise.c']),
