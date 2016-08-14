@@ -47,70 +47,64 @@ from _fadvise import posix_fadvise, POSIX_FADV_NORMAL, POSIX_FADV_RANDOM, \
  POSIX_FADV_SEQUENTIAL, POSIX_FADV_WILLNEED, POSIX_FADV_DONTNEED, \
  POSIX_FADV_NOREUSE
 
-class advice(object):
-    def __init__(self, advice):
-        self.advice = advice
+def set_advice(fileobj, advice, offset=0, len=0):
+    return posix_fadvise(fileobj.fileno(), offset, len, advice)
 
-    @classmethod
-    def expand_directories(cls, fnames):
-        for fname in fnames:
-            if os.path.isfile(fname):
-                yield fname
-            elif os.path.isdir(fname):
-                for dirpath, _, filenames in os.walk(fname):
-                    for fname in filenames:
-                        yield os.path.join(dirpath, fname)
+def noreuse(*args, **kwargs):
+    """
+    The specified files will be accessed only once. Under Linux, this operation
+    is a no-op; see contrib/copyfileobj-fadvise.py in the python-fadvise source
+    tree for an example on how to achieve approximately the same effect.
 
-    def __call__(self, fn):
-        def wrapper(fnames, offset=0, len=0):
-            if isinstance(fnames, basestring):
-                fnames = [fnames]
+    Example::
 
-            for fname in self.expand_directories(fnames):
-                fd = os.open(fname, 0)
-                posix_fadvise(fd, offset, len, self.advice)
-                os.close(fd)
-        wrapper.__name__ = fn.__name__
-        wrapper.__doc__ = fn.__doc__
-        return wrapper
+        with fadvise.noreuse('file.test') as f:
+            f.read()
+    """
 
-@advice(POSIX_FADV_NORMAL)
-def normal(fnames, offset=0, len=0):
+    return _open_wrapper(POSIX_FADV_NOREUSE, *args, **kwargs)
+
+def normal(*args, **kwargs):
     """
     Indicates that the application has no advice to give about its
     access pattern for the specified files. If no advice is given
     for an open file, this is the default assumption.
     """
+    return _open_wrapper(POSIX_FADV_NORMAL, *args, **kwargs)
 
-@advice(POSIX_FADV_SEQUENTIAL)
-def sequential(fnames, offset=0, len=0):
+def sequential(*args, **kwargs):
     """
     The application expects to access the specified files
     sequentially (with lower offsets read before higher ones).
     """
+    return _open_wrapper(POSIX_FADV_SEQUENTIAL, *args, **kwargs)
 
-@advice(POSIX_FADV_RANDOM)
-def random(fnames, offset=0, len=0):
+def random(*args, **kwargs):
     """
     The specified files will be accessed in random order.
     """
+    return _open_wrapper(POSIX_FADV_RANDOM, *args, **kwargs)
 
-@advice(POSIX_FADV_NOREUSE)
-def noreuse(fnames, offset=0, len=0):
-    """
-    The specified files will be accessed only once. Under Linux, this operation
-    is a no-op; see contrib/copyfileobj-fadvise.py in the python-fadvise source
-    tree for an example on how to achieve approximately the same effect.
-    """
-
-@advice(POSIX_FADV_WILLNEED)
-def willneed(fnames, offset=0, len=0):
+def willneed(*args, **kwargs):
     """
     The specified files will be accessed in the near future.
     """
+    return _open_wrapper(POSIX_FADV_WILLNEED, *args, **kwargs)
 
-@advice(POSIX_FADV_DONTNEED)
-def dontneed(fnames, offset=0, len=0):
+def dontneed(*args, **kwargs):
     """
     The specified files will not be accessed in the near future.
     """
+    return _open_wrapper(POSIX_FADV_DONTNEED, *args, **kwargs)
+
+##
+
+def _open_wrapper(advice, *args, **kwargs):
+    len = kwargs.pop('len', 0)
+    offset = kwargs.pop('offset', 0)
+
+    fileobj = open(*args, **kwargs)
+
+    set_advice(fileobj, advice, offset=offset, len=len)
+
+    return fileobj
