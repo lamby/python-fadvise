@@ -65,8 +65,6 @@ init_fadvise(void)
 {
 	PyObject *m = Py_InitModule("_fadvise", PosixFadviseMethods);
 
-	PyObject *d = PyModule_GetDict(m);
-
 	PyModule_AddIntConstant(m, "POSIX_FADV_NORMAL", POSIX_FADV_NORMAL);
 	PyModule_AddIntConstant(m, "POSIX_FADV_RANDOM", POSIX_FADV_RANDOM);
 	PyModule_AddIntConstant(m, "POSIX_FADV_SEQUENTIAL", POSIX_FADV_SEQUENTIAL);
