@@ -43,7 +43,7 @@ merely constitutes an expectation on behalf of the application.
 
 import os
 
-from _fadvise import posix_fadvise, POSIX_FADV_NORMAL, POSIX_FADV_RANDOM, \
+from fadvise._fadvise import posix_fadvise, POSIX_FADV_NORMAL, POSIX_FADV_RANDOM, \
  POSIX_FADV_SEQUENTIAL, POSIX_FADV_WILLNEED, POSIX_FADV_DONTNEED, \
  POSIX_FADV_NOREUSE
 
