@@ -43,6 +43,6 @@ setup(
 
     packages=find_packages(),
     ext_modules=[
-        Extension('_fadvise', sources=['_fadvise.c']),
+        Extension('fadvise._fadvise', sources=['_fadvise.c']),
     ],
 )
