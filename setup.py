@@ -33,7 +33,7 @@ from setuptools import setup, find_packages, Extension
 
 setup(
     name='fadvise',
-    version='5.0.0',
+    version='6.0.0',
     description="Python interface to posix_fadvise(2)",
 
     url="https://chris-lamb.co.uk/projects/python-fadvise",
