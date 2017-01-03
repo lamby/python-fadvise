@@ -23,7 +23,7 @@ def copyfileobj(fsrc, fdst, length=16*1024, advise_after=1024*1024):
         * You're quite likely to access the destination file soon after.
     """
 
-    # If we can't access the the fileno then fallback to using shutil.
+    # If we can't access the fileno then fallback to using shutil.
     if not hasattr(fsrc, 'fileno'):
         return shutil.copyfileobj(fsrc, fdst, length)
 
