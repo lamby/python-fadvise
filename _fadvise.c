@@ -47,6 +47,7 @@ method_posix_fadvise(PyObject *self, PyObject *args)
 	Py_END_ALLOW_THREADS;
 
 	if (ret) {
+		errno = ret;
 		PyErr_SetFromErrno(PyExc_OSError);
 		return NULL;
 	}
