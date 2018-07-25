@@ -105,6 +105,10 @@ def _open_wrapper(advice, *args, **kwargs):
 
     fileobj = open(*args, **kwargs)
 
-    set_advice(fileobj, advice, offset=offset, len=len)
+    try:
+        set_advice(fileobj, advice, offset=offset, len=len)
+    except Exception:
+        fileobj.close()
+        raise
 
     return fileobj
