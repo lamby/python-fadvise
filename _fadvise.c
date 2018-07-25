@@ -33,6 +33,17 @@
 #define _XOPEN_SOURCE 600
 #include <fcntl.h>
 
+struct module_state {
+    PyObject *error;
+};
+
+#if PY_MAJOR_VERSION >= 3
+#define GETSTATE(m) ((struct module_state*)PyModule_GetState(m))
+#else
+#define GETSTATE(m) (&_state)
+static struct module_state _state;
+#endif
+
 static PyObject *
 method_posix_fadvise(PyObject *self, PyObject *args)
 {
@@ -60,10 +71,49 @@ static PyMethodDef PosixFadviseMethods[] = {
 	{NULL, NULL, 0, NULL}
 };
 
+#if PY_MAJOR_VERSION >= 3
+static int myextension_traverse(PyObject *m, visitproc visit, void *arg) {
+    Py_VISIT(GETSTATE(m)->error);
+    return 0;
+}
+
+static int myextension_clear(PyObject *m) {
+    Py_CLEAR(GETSTATE(m)->error);
+    return 0;
+}
+
+static struct PyModuleDef moduledef = {
+        PyModuleDef_HEAD_INIT,
+        "_fadvise",
+        NULL,
+        sizeof(struct module_state),
+        PosixFadviseMethods,
+        NULL,
+        myextension_traverse,
+        myextension_clear,
+        NULL
+};
+
+#define INITERROR return NULL
+
 PyMODINIT_FUNC
-init_fadvise(void)
+PyInit_myextension(void)
+
+#else
+#define INITERROR return
+
+void
+initmyextension(void)
+#endif
 {
+#if PY_MAJOR_VERSION >= 3
+	PyObject *m = PyModule_Create(&moduledef);
+#else
 	PyObject *m = Py_InitModule("_fadvise", PosixFadviseMethods);
+#endif
+
+	if (m == NULL)
+		INITERROR;
 
 	PyModule_AddIntConstant(m, "POSIX_FADV_NORMAL", POSIX_FADV_NORMAL);
 	PyModule_AddIntConstant(m, "POSIX_FADV_RANDOM", POSIX_FADV_RANDOM);
@@ -71,4 +121,8 @@ init_fadvise(void)
 	PyModule_AddIntConstant(m, "POSIX_FADV_WILLNEED", POSIX_FADV_WILLNEED);
 	PyModule_AddIntConstant(m, "POSIX_FADV_DONTNEED", POSIX_FADV_DONTNEED);
 	PyModule_AddIntConstant(m, "POSIX_FADV_NOREUSE", POSIX_FADV_NOREUSE);
+
+#if PY_MAJOR_VERSION >= 3
+	return m;
+#endif
 }
